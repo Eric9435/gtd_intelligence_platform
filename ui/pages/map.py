@@ -7,7 +7,7 @@ from ui.maps.risk_map import build_myanmar_risk_map
 def render_map_page():
     render_header(
         "Myanmar Map",
-        "Geospatial starter view for GT&D assets and risk zones.",
+        "Geospatial asset and risk view using CSV-backed GT&D data.",
     )
 
     tab1, tab2 = st.tabs(["Asset Map", "Risk Map"])

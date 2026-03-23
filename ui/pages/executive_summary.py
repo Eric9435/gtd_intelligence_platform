@@ -3,6 +3,7 @@ import streamlit as st
 from ui.components.header import render_header
 from ui.components.alerts import render_risk_badge
 from ui.components.risk_panel import render_risk_summary_boxes
+from ui.components.recommendation_panel import render_recommendation_panel
 from storage.db import (
     fetch_all_generation_records,
     fetch_all_transmission_records,
@@ -10,6 +11,10 @@ from storage.db import (
     fetch_all_sales_records,
     fetch_all_roi_records,
     fetch_all_export_records,
+)
+from core.services.summary_service import (
+    generate_executive_insight,
+    generate_auto_summary_paragraph,
 )
 
 
@@ -33,6 +38,15 @@ def render_executive_summary_page():
     latest_roi = roi[0] if roi else {}
     latest_export = export[0] if export else {}
 
+    snapshot = {
+        "generation": latest_generation,
+        "transmission": latest_transmission,
+        "distribution": latest_distribution,
+        "sales": latest_sales,
+        "roi": latest_roi,
+        "export": latest_export,
+    }
+
     render_risk_summary_boxes([
         ("Generation", f"{latest_generation.get('actual_generation_mw', 0)} MW"),
         ("Transmission Risk", str(latest_transmission.get("risk_score", 0))),
@@ -48,19 +62,7 @@ def render_executive_summary_page():
 
     with left:
         st.markdown("### Executive Narrative")
-        st.write(
-            f"""
-            The latest GT&D operating profile indicates **{latest_generation.get('actual_generation_mw', 0)} MW**
-            of generation, with a transmission risk score of **{latest_transmission.get('risk_score', 0)}** and
-            a distribution loss level of **{latest_distribution.get('total_loss_pct', 0)} %**.
-            
-            Commercially, the system is currently producing **{latest_sales.get('revenue_mmk', 0):,.0f} MMK**
-            in revenue, with an estimated ROI of **{latest_roi.get('roi_pct', 0)} %**.
-            
-            Export opportunity currently stands at **{latest_export.get('surplus_mw', 0)} MW** surplus with
-            potential export revenue of **{latest_export.get('export_revenue_mmk', 0):,.0f} MMK**.
-            """
-        )
+        st.write(generate_auto_summary_paragraph(snapshot))
 
     with right:
         st.markdown("### Executive Risk Status")
@@ -74,3 +76,10 @@ def render_executive_summary_page():
         render_risk_badge(latest_roi.get("risk_level", "NORMAL"))
         st.write("Export")
         render_risk_badge(latest_export.get("risk_level", "NORMAL"))
+
+    st.markdown("---")
+
+    render_recommendation_panel(
+        "Executive Smart Summary",
+        generate_executive_insight(snapshot),
+    )

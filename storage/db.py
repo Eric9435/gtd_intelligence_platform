@@ -125,14 +125,33 @@ def init_db():
     )
     """)
 
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS compare_snapshots (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        module_name TEXT,
+        record_a_id INTEGER,
+        record_b_id INTEGER,
+        snapshot_name TEXT,
+        notes TEXT,
+        created_by TEXT,
+        created_at TEXT
+    )
+    """)
+
+    conn.commit()
+    conn.close()
+
+
+def _insert(query: str, values: tuple):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(query, values)
     conn.commit()
     conn.close()
 
 
 def save_transmission_record(record: dict):
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute("""
+    _insert("""
     INSERT INTO transmission_records (
         substation_name, transformer_mva, load_mw, primary_kv, secondary_kv,
         current_r, current_y, current_b, power_factor, oil_temp, winding_temp,
@@ -140,163 +159,102 @@ def save_transmission_record(record: dict):
         risk_score, risk_level, issues, created_at
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
-        record["substation_name"],
-        record["transformer_mva"],
-        record["load_mw"],
-        record["primary_kv"],
-        record["secondary_kv"],
-        record["current_r"],
-        record["current_y"],
-        record["current_b"],
-        record["power_factor"],
-        record["oil_temp"],
-        record["winding_temp"],
-        record["loading_pct"],
-        record["avg_current"],
-        record["imbalance_pct"],
-        record["voltage_dev_pct"],
-        record["risk_score"],
-        record["risk_level"],
-        record["issues"],
-        record["created_at"],
+        record["substation_name"], record["transformer_mva"], record["load_mw"],
+        record["primary_kv"], record["secondary_kv"], record["current_r"],
+        record["current_y"], record["current_b"], record["power_factor"],
+        record["oil_temp"], record["winding_temp"], record["loading_pct"],
+        record["avg_current"], record["imbalance_pct"], record["voltage_dev_pct"],
+        record["risk_score"], record["risk_level"], record["issues"], record["created_at"],
     ))
-    conn.commit()
-    conn.close()
 
 
 def save_generation_record(record: dict):
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute("""
+    _insert("""
     INSERT INTO generation_records (
         plant_name, plant_type, installed_capacity_mw, available_capacity_mw,
         actual_generation_mw, efficiency_pct, reserve_margin_mw,
         utilization_pct, risk_score, risk_level, issues, created_at
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
-        record["plant_name"],
-        record["plant_type"],
-        record["installed_capacity_mw"],
-        record["available_capacity_mw"],
-        record["actual_generation_mw"],
-        record["efficiency_pct"],
-        record["reserve_margin_mw"],
-        record["utilization_pct"],
-        record["risk_score"],
-        record["risk_level"],
-        record["issues"],
-        record["created_at"],
+        record["plant_name"], record["plant_type"], record["installed_capacity_mw"],
+        record["available_capacity_mw"], record["actual_generation_mw"],
+        record["efficiency_pct"], record["reserve_margin_mw"], record["utilization_pct"],
+        record["risk_score"], record["risk_level"], record["issues"], record["created_at"],
     ))
-    conn.commit()
-    conn.close()
 
 
 def save_distribution_record(record: dict):
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute("""
+    _insert("""
     INSERT INTO distribution_records (
         zone_name, feeder_name, feeder_load_mw, dt_rating_mva, dt_load_mw,
         consumer_voltage_v, technical_loss_pct, non_technical_loss_pct,
         total_loss_pct, dt_loading_pct, risk_score, risk_level, issues, created_at
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
-        record["zone_name"],
-        record["feeder_name"],
-        record["feeder_load_mw"],
-        record["dt_rating_mva"],
-        record["dt_load_mw"],
-        record["consumer_voltage_v"],
-        record["technical_loss_pct"],
-        record["non_technical_loss_pct"],
-        record["total_loss_pct"],
-        record["dt_loading_pct"],
-        record["risk_score"],
-        record["risk_level"],
-        record["issues"],
-        record["created_at"],
+        record["zone_name"], record["feeder_name"], record["feeder_load_mw"],
+        record["dt_rating_mva"], record["dt_load_mw"], record["consumer_voltage_v"],
+        record["technical_loss_pct"], record["non_technical_loss_pct"],
+        record["total_loss_pct"], record["dt_loading_pct"], record["risk_score"],
+        record["risk_level"], record["issues"], record["created_at"],
     ))
-    conn.commit()
-    conn.close()
 
 
 def save_sales_record(record: dict):
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute("""
+    _insert("""
     INSERT INTO sales_records (
         zone_name, units_sold_mwh, tariff_mmk_per_kwh, revenue_mmk,
         industrial_pct, residential_pct, commercial_pct,
         risk_score, risk_level, issues, created_at
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
-        record["zone_name"],
-        record["units_sold_mwh"],
-        record["tariff_mmk_per_kwh"],
-        record["revenue_mmk"],
-        record["industrial_pct"],
-        record["residential_pct"],
-        record["commercial_pct"],
-        record["risk_score"],
-        record["risk_level"],
-        record["issues"],
-        record["created_at"],
+        record["zone_name"], record["units_sold_mwh"], record["tariff_mmk_per_kwh"],
+        record["revenue_mmk"], record["industrial_pct"], record["residential_pct"],
+        record["commercial_pct"], record["risk_score"], record["risk_level"],
+        record["issues"], record["created_at"],
     ))
-    conn.commit()
-    conn.close()
 
 
 def save_roi_record(record: dict):
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute("""
+    _insert("""
     INSERT INTO roi_records (
         project_name, capex_mmk, opex_monthly_mmk, annual_revenue_mmk,
         annual_profit_mmk, roi_pct, payback_years,
         risk_score, risk_level, issues, created_at
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
-        record["project_name"],
-        record["capex_mmk"],
-        record["opex_monthly_mmk"],
-        record["annual_revenue_mmk"],
-        record["annual_profit_mmk"],
-        record["roi_pct"],
-        record["payback_years"],
-        record["risk_score"],
-        record["risk_level"],
-        record["issues"],
-        record["created_at"],
+        record["project_name"], record["capex_mmk"], record["opex_monthly_mmk"],
+        record["annual_revenue_mmk"], record["annual_profit_mmk"], record["roi_pct"],
+        record["payback_years"], record["risk_score"], record["risk_level"],
+        record["issues"], record["created_at"],
     ))
-    conn.commit()
-    conn.close()
 
 
 def save_export_record(record: dict):
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute("""
+    _insert("""
     INSERT INTO export_records (
         zone_name, total_generation_mw, total_demand_mw, surplus_mw,
         export_hours, export_tariff_mmk_per_kwh, export_energy_mwh,
         export_revenue_mmk, risk_score, risk_level, issues, created_at
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
-        record["zone_name"],
-        record["total_generation_mw"],
-        record["total_demand_mw"],
-        record["surplus_mw"],
-        record["export_hours"],
-        record["export_tariff_mmk_per_kwh"],
-        record["export_energy_mwh"],
-        record["export_revenue_mmk"],
-        record["risk_score"],
-        record["risk_level"],
-        record["issues"],
-        record["created_at"],
+        record["zone_name"], record["total_generation_mw"], record["total_demand_mw"],
+        record["surplus_mw"], record["export_hours"], record["export_tariff_mmk_per_kwh"],
+        record["export_energy_mwh"], record["export_revenue_mmk"], record["risk_score"],
+        record["risk_level"], record["issues"], record["created_at"],
     ))
-    conn.commit()
-    conn.close()
+
+
+def save_compare_snapshot(snapshot: dict):
+    _insert("""
+    INSERT INTO compare_snapshots (
+        module_name, record_a_id, record_b_id, snapshot_name,
+        notes, created_by, created_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (
+        snapshot["module_name"], snapshot["record_a_id"], snapshot["record_b_id"],
+        snapshot["snapshot_name"], snapshot["notes"], snapshot["created_by"],
+        snapshot["created_at"],
+    ))
 
 
 def _fetch_all(table_name: str):
@@ -332,3 +290,6 @@ def fetch_all_roi_records():
 def fetch_all_export_records():
     return _fetch_all("export_records")
 
+
+def fetch_all_compare_snapshots():
+    return _fetch_all("compare_snapshots")

@@ -12,12 +12,17 @@ from storage.db import (
 )
 
 
-def _filter_dataframe(df: pd.DataFrame, keyword: str):
-    if not keyword:
-        return df
-    keyword = keyword.lower()
-    mask = df.astype(str).apply(lambda col: col.str.lower().str.contains(keyword, na=False))
-    return df[mask.any(axis=1)]
+def _filter_dataframe(df: pd.DataFrame, keyword: str, date_keyword: str):
+    if keyword:
+        keyword = keyword.lower()
+        mask = df.astype(str).apply(lambda col: col.str.lower().str.contains(keyword, na=False))
+        df = df[mask.any(axis=1)]
+
+    if date_keyword:
+        if "created_at" in df.columns:
+            df = df[df["created_at"].astype(str).str.contains(date_keyword, na=False)]
+
+    return df
 
 
 def render_history_page():
@@ -26,7 +31,11 @@ def render_history_page():
         "Saved records with smart filtering for engineering and business review.",
     )
 
-    keyword = st.text_input("Search keyword", "")
+    col1, col2 = st.columns(2)
+    with col1:
+        keyword = st.text_input("Search keyword", "")
+    with col2:
+        date_keyword = st.text_input("Filter by date text (e.g. 2026-03)", "")
 
     tabs = st.tabs([
         "Transmission",
@@ -59,7 +68,7 @@ def render_history_page():
         with tab:
             if rows:
                 df = pd.DataFrame(rows)
-                df = _filter_dataframe(df, keyword)
+                df = _filter_dataframe(df, keyword, date_keyword)
                 st.dataframe(df, use_container_width=True)
             else:
                 st.info(empty_msg)

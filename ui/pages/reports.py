@@ -12,12 +12,13 @@ from storage.db import (
 )
 from reports.csv import export_dataframe_to_csv
 from reports.pdf import build_simple_pdf_report
+from core.services.summary_service import generate_executive_insight
 
 
 def render_reports_page():
     render_header(
         "Reports",
-        "Export GT&D records in CSV and advanced PDF format.",
+        "Export GT&D records in CSV and advanced PDF format with executive insight.",
     )
 
     module = st.selectbox(
@@ -54,12 +55,15 @@ def render_reports_page():
     )
 
     latest = rows[0]
+    summary = generate_executive_insight({module.lower(): latest})
+
     sections = {
         "Module Summary": [
             f"Module: {module}",
             f"Record Count: {len(rows)}",
         ],
         "Latest Record": [f"{k}: {v}" for k, v in latest.items()],
+        "Executive Insight": summary,
     }
 
     pdf_bytes = build_simple_pdf_report(

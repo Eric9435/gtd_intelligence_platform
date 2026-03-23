@@ -1,35 +1,40 @@
 import plotly.graph_objects as go
+from core.geo.geo_loader import load_csv_points
+
+
+def _risk_color(level: str) -> str:
+    level = str(level).upper()
+    if level == "CRITICAL":
+        return "red"
+    if level == "HIGH":
+        return "orange"
+    if level == "WARNING":
+        return "yellow"
+    return "green"
 
 
 def build_myanmar_risk_map():
-    names = ["Yangon", "Mandalay", "Naypyidaw", "Bago", "Magway"]
-    lons = [96.1951, 96.0891, 95.9560, 96.4910, 94.9320]
-    lats = [16.8661, 21.9588, 19.7633, 17.3360, 20.1490]
-    levels = ["CRITICAL", "HIGH", "WARNING", "NORMAL", "WARNING"]
+    rows = load_csv_points("data/geo/demand_zones.csv")
 
-    colors = []
-    for level in levels:
-        if level == "CRITICAL":
-            colors.append("red")
-        elif level == "HIGH":
-            colors.append("orange")
-        elif level == "WARNING":
-            colors.append("yellow")
-        else:
-            colors.append("green")
+    if not rows:
+        rows = [
+            {"name": "Yangon", "lat": 16.8661, "lon": 96.1951, "risk_level": "CRITICAL"},
+            {"name": "Mandalay", "lat": 21.9588, "lon": 96.0891, "risk_level": "HIGH"},
+            {"name": "Naypyidaw", "lat": 19.7633, "lon": 95.9560, "risk_level": "WARNING"},
+        ]
 
     fig = go.Figure()
 
     fig.add_trace(
         go.Scattergeo(
-            lon=lons,
-            lat=lats,
-            text=[f"{n} - {lvl}" for n, lvl in zip(names, levels)],
+            lon=[float(r["lon"]) for r in rows],
+            lat=[float(r["lat"]) for r in rows],
+            text=[f"{r.get('name', 'Zone')} - {r.get('risk_level', 'NORMAL')}" for r in rows],
             mode="markers+text",
             textposition="top center",
             marker=dict(
-                size=[18, 16, 14, 12, 14],
-                color=colors,
+                size=[18 if str(r.get("risk_level", "")).upper() == "CRITICAL" else 14 for r in rows],
+                color=[_risk_color(r.get("risk_level", "NORMAL")) for r in rows],
                 line=dict(width=1, color="white"),
             ),
             name="Risk Zones",
@@ -50,7 +55,7 @@ def build_myanmar_risk_map():
 
     fig.update_layout(
         title="Myanmar GT&D Risk Map",
-        height=520,
+        height=540,
         margin=dict(l=20, r=20, t=50, b=20),
     )
     return fig

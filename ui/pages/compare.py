@@ -1,26 +1,29 @@
 import streamlit as st
 import pandas as pd
+from datetime import datetime
 
 from ui.components.header import render_header
 from storage.db import (
     fetch_all_generation_records,
     fetch_all_transmission_records,
     fetch_all_distribution_records,
+    fetch_all_compare_snapshots,
+    save_compare_snapshot,
 )
-from ui.charts.bar import build_money_bar_chart
+from ui.charts.compare import build_compare_chart
 
 
 def _safe_get(df: pd.DataFrame, col: str, idx: int):
     try:
-        return df.iloc[idx][col]
+        return float(df.iloc[idx][col])
     except Exception:
-        return 0
+        return 0.0
 
 
 def render_compare_page():
     render_header(
         "Compare",
-        "Compare saved records side by side for engineering review.",
+        "Compare saved records side by side and save compare snapshots.",
     )
 
     module = st.selectbox(
@@ -51,30 +54,48 @@ def render_compare_page():
     rec2 = df.iloc[idx2].to_dict()
 
     c1, c2 = st.columns(2)
-
     with c1:
         st.markdown("### Record A")
         st.json(rec1)
-
     with c2:
         st.markdown("### Record B")
         st.json(rec2)
 
-    labels = []
-    values_a = []
-    values_b = []
-
-    for metric in key_metrics:
-        labels.append(metric)
-        values_a.append(_safe_get(df, metric, idx1))
-        values_b.append(_safe_get(df, metric, idx2))
+    values_a = [_safe_get(df, metric, idx1) for metric in key_metrics]
+    values_b = [_safe_get(df, metric, idx2) for metric in key_metrics]
 
     st.markdown("### Comparison Chart")
     st.plotly_chart(
-        build_money_bar_chart(
-            labels + labels,
-            values_a + values_b,
-            f"{module} Comparison (A then B)",
+        build_compare_chart(
+            key_metrics,
+            values_a,
+            values_b,
+            "Record A",
+            "Record B",
         ),
         use_container_width=True,
     )
+
+    st.markdown("---")
+    st.markdown("### Save Compare Snapshot")
+
+    snapshot_name = st.text_input("Snapshot Name", f"{module} Compare Snapshot")
+    notes = st.text_area("Notes", "")
+    if st.button("Save Snapshot"):
+        save_compare_snapshot({
+            "module_name": module,
+            "record_a_id": int(rec1["id"]),
+            "record_b_id": int(rec2["id"]),
+            "snapshot_name": snapshot_name,
+            "notes": notes,
+            "created_by": st.session_state.get("username", "unknown"),
+            "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        })
+        st.success("Compare snapshot saved.")
+
+    st.markdown("### Saved Compare Snapshots")
+    snapshots = fetch_all_compare_snapshots()
+    if snapshots:
+        st.dataframe(pd.DataFrame(snapshots), use_container_width=True)
+    else:
+        st.info("No compare snapshots saved yet.")
