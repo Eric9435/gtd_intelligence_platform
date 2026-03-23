@@ -6,34 +6,47 @@ from storage.db import (
     fetch_all_transmission_records,
     fetch_all_generation_records,
     fetch_all_distribution_records,
+    fetch_all_sales_records,
+    fetch_all_roi_records,
+    fetch_all_export_records,
 )
 
 
 def render_history_page():
     render_header(
         "History",
-        "Saved transmission, generation, and distribution records.",
+        "Saved records for transmission, generation, distribution, sales, ROI, and export.",
     )
 
-    tab1, tab2, tab3 = st.tabs(["Transmission", "Generation", "Distribution"])
+    tabs = st.tabs([
+        "Transmission",
+        "Generation",
+        "Distribution",
+        "Sales",
+        "ROI",
+        "Export",
+    ])
 
-    with tab1:
+    with tabs[0]:
         rows = fetch_all_transmission_records()
-        if rows:
-            st.dataframe(pd.DataFrame(rows), use_container_width=True)
-        else:
-            st.info("No transmission records found.")
+        st.dataframe(pd.DataFrame(rows), use_container_width=True) if rows else st.info("No transmission records found.")
 
-    with tab2:
+    with tabs[1]:
         rows = fetch_all_generation_records()
-        if rows:
-            st.dataframe(pd.DataFrame(rows), use_container_width=True)
-        else:
-            st.info("No generation records found.")
+        st.dataframe(pd.DataFrame(rows), use_container_width=True) if rows else st.info("No generation records found.")
 
-    with tab3:
+    with tabs[2]:
         rows = fetch_all_distribution_records()
-        if rows:
-            st.dataframe(pd.DataFrame(rows), use_container_width=True)
-        else:
-            st.info("No distribution records found.")
+        st.dataframe(pd.DataFrame(rows), use_container_width=True) if rows else st.info("No distribution records found.")
+
+    with tabs[3]:
+        rows = fetch_all_sales_records()
+        st.dataframe(pd.DataFrame(rows), use_container_width=True) if rows else st.info("No sales records found.")
+
+    with tabs[4]:
+        rows = fetch_all_roi_records()
+        st.dataframe(pd.DataFrame(rows), use_container_width=True) if rows else st.info("No ROI records found.")
+
+    with tabs[5]:
+        rows = fetch_all_export_records()
+        st.dataframe(pd.DataFrame(rows), use_container_width=True) if rows else st.info("No export records found.")
