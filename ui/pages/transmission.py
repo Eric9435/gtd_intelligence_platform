@@ -2,10 +2,18 @@ import streamlit as st
 
 from core.services.analysis_service import analyze_transmission_input
 from core.recommendations.transmission import generate_recommendations
+from core.data_quality.validation_engine import (
+    validate_positive,
+    validate_power_factor,
+    validate_voltage,
+    build_data_quality_score,
+)
+from core.data_quality.anomaly_detection import detect_transmission_anomalies
 from storage.db import save_transmission_record
 from ui.components.header import render_header
 from ui.components.kpi_cards import render_kpi_cards
 from ui.components.alerts import render_risk_badge
+from ui.components.data_quality_panel import render_data_quality_panel
 from ui.charts.gauge import build_risk_gauge
 from ui.charts.bar import build_load_chart
 from ui.charts.line import build_temp_chart
@@ -52,10 +60,22 @@ def render_transmission_page():
             "winding_temp": winding_temp,
         }
 
+        quality_issues = []
+        quality_issues += validate_positive("Transformer Rating", transformer_mva)
+        quality_issues += validate_positive("Load", load_mw)
+        quality_issues += validate_voltage("Primary Voltage", primary_kv)
+        quality_issues += validate_voltage("Secondary Voltage", secondary_kv)
+        quality_issues += validate_power_factor(power_factor)
+        quality_issues += detect_transmission_anomalies(inputs)
+
+        quality_score = build_data_quality_score(len(quality_issues))
+
         result = analyze_transmission_input(inputs)
         save_transmission_record(result)
 
         st.success("Analysis complete and saved.")
+
+        render_data_quality_panel(quality_score, quality_issues)
 
         st.markdown("### KPI Summary")
         render_kpi_cards(result)

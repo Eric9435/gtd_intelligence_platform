@@ -5,7 +5,7 @@ from ui.components.header import render_header
 def render_home_page():
     render_header(
         "GT&D Intelligence Platform",
-        "Phase 5 expanded platform with forecast, scenarios, PDF reports, and smarter dashboard.",
+        "Phase 7 expanded platform with data quality, compare, filters, and executive summary.",
     )
 
     st.markdown("### Platform Scope")
@@ -37,8 +37,8 @@ def render_home_page():
         st.markdown(
             """
             <div class="kpi-card">
-                <div class="kpi-value">Forecast</div>
-                <div class="kpi-label">Demand and generation forecasting</div>
+                <div class="kpi-value">Planning</div>
+                <div class="kpi-label">Forecast and scenario evaluation</div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -48,8 +48,8 @@ def render_home_page():
         st.markdown(
             """
             <div class="kpi-card">
-                <div class="kpi-value">Scenario</div>
-                <div class="kpi-label">What-if simulation and planning view</div>
+                <div class="kpi-value">Governance</div>
+                <div class="kpi-label">Data quality, compare, executive summary</div>
             </div>
             """,
             unsafe_allow_html=True,

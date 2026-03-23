@@ -12,11 +12,21 @@ from storage.db import (
 )
 
 
+def _filter_dataframe(df: pd.DataFrame, keyword: str):
+    if not keyword:
+        return df
+    keyword = keyword.lower()
+    mask = df.astype(str).apply(lambda col: col.str.lower().str.contains(keyword, na=False))
+    return df[mask.any(axis=1)]
+
+
 def render_history_page():
     render_header(
         "History",
-        "Saved records for transmission, generation, distribution, sales, ROI, and export.",
+        "Saved records with smart filtering for engineering and business review.",
     )
+
+    keyword = st.text_input("Search keyword", "")
 
     tabs = st.tabs([
         "Transmission",
@@ -27,26 +37,29 @@ def render_history_page():
         "Export",
     ])
 
-    with tabs[0]:
-        rows = fetch_all_transmission_records()
-        st.dataframe(pd.DataFrame(rows), use_container_width=True) if rows else st.info("No transmission records found.")
+    datasets = [
+        fetch_all_transmission_records(),
+        fetch_all_generation_records(),
+        fetch_all_distribution_records(),
+        fetch_all_sales_records(),
+        fetch_all_roi_records(),
+        fetch_all_export_records(),
+    ]
 
-    with tabs[1]:
-        rows = fetch_all_generation_records()
-        st.dataframe(pd.DataFrame(rows), use_container_width=True) if rows else st.info("No generation records found.")
+    empty_msgs = [
+        "No transmission records found.",
+        "No generation records found.",
+        "No distribution records found.",
+        "No sales records found.",
+        "No ROI records found.",
+        "No export records found.",
+    ]
 
-    with tabs[2]:
-        rows = fetch_all_distribution_records()
-        st.dataframe(pd.DataFrame(rows), use_container_width=True) if rows else st.info("No distribution records found.")
-
-    with tabs[3]:
-        rows = fetch_all_sales_records()
-        st.dataframe(pd.DataFrame(rows), use_container_width=True) if rows else st.info("No sales records found.")
-
-    with tabs[4]:
-        rows = fetch_all_roi_records()
-        st.dataframe(pd.DataFrame(rows), use_container_width=True) if rows else st.info("No ROI records found.")
-
-    with tabs[5]:
-        rows = fetch_all_export_records()
-        st.dataframe(pd.DataFrame(rows), use_container_width=True) if rows else st.info("No export records found.")
+    for tab, rows, empty_msg in zip(tabs, datasets, empty_msgs):
+        with tab:
+            if rows:
+                df = pd.DataFrame(rows)
+                df = _filter_dataframe(df, keyword)
+                st.dataframe(df, use_container_width=True)
+            else:
+                st.info(empty_msg)

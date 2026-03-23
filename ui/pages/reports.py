@@ -17,7 +17,7 @@ from reports.pdf import build_simple_pdf_report
 def render_reports_page():
     render_header(
         "Reports",
-        "Export GT&D data and summary reports in CSV and PDF format.",
+        "Export GT&D records in CSV and advanced PDF format.",
     )
 
     module = st.selectbox(
@@ -46,7 +46,6 @@ def render_reports_page():
     st.dataframe(df, use_container_width=True)
 
     csv_bytes = export_dataframe_to_csv(df)
-
     st.download_button(
         label="Download CSV",
         data=csv_bytes,
@@ -56,11 +55,15 @@ def render_reports_page():
 
     latest = rows[0]
     sections = {
-        "Module Summary": [f"Module: {module}", f"Record Count: {len(rows)}"],
+        "Module Summary": [
+            f"Module: {module}",
+            f"Record Count: {len(rows)}",
+        ],
         "Latest Record": [f"{k}: {v}" for k, v in latest.items()],
     }
+
     pdf_bytes = build_simple_pdf_report(
-        title=f"{module} Report",
+        title=f"{module} GT&D Report",
         sections=sections,
     )
 

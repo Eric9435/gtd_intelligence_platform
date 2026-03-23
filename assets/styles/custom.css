@@ -4,9 +4,8 @@
   font-family: "Segoe UI", sans-serif;
 }
 
-/* ===== HERO ===== */
 .hero-card {
-  background: rgba(18, 30, 49, 0.90);
+  background: rgba(18, 30, 49, 0.92);
   border-radius: 18px;
   padding: 1.2rem 1.2rem;
   margin-bottom: 1rem;
@@ -25,7 +24,6 @@
   color: #b9c7dd;
 }
 
-/* ===== KPI CARDS ===== */
 .kpi-card {
   padding: 16px;
   border-radius: 16px;
@@ -53,7 +51,6 @@
   margin-top: 0.35rem;
 }
 
-/* ===== STATUS COLORS ===== */
 .status-normal {
   color: #22c55e;
   font-weight: 700;
@@ -69,7 +66,6 @@
   font-weight: 700;
 }
 
-/* ===== BADGES ===== */
 .badge {
   display: inline-block;
   padding: 6px 12px;
@@ -94,7 +90,6 @@
   color: #f87171;
 }
 
-/* ===== SECTION BOX ===== */
 .section-card {
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.06);
@@ -104,7 +99,52 @@
   box-shadow: 0 8px 20px rgba(0,0,0,0.15);
 }
 
-/* ===== STREAMLIT TWEAKS ===== */
+.ai-card {
+  background: linear-gradient(135deg, rgba(29, 78, 216, 0.16), rgba(16, 185, 129, 0.10));
+  border: 1px solid rgba(96, 165, 250, 0.22);
+  border-radius: 16px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.ai-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #dbeafe;
+  margin-bottom: 0.5rem;
+}
+
+.ai-item {
+  color: #e5eefc;
+  margin-bottom: 0.35rem;
+}
+
+.risk-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 1rem;
+}
+
+.risk-box {
+  background: rgba(255,255,255,0.05);
+  border-radius: 14px;
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.risk-box-title {
+  color: #b9c7dd;
+  font-size: 0.82rem;
+}
+
+.risk-box-value {
+  color: #ffffff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-top: 0.35rem;
+}
+
 [data-testid="stMetric"] {
   background: rgba(255,255,255,0.04);
   border-radius: 14px;

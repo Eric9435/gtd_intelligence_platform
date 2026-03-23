@@ -4,16 +4,18 @@ from storage.db import init_db
 from ui.components.header import load_custom_css
 from ui.pages.home import render_home_page
 from ui.pages.dashboard import render_dashboard_page
+from ui.pages.executive_summary import render_executive_summary_page
 from ui.pages.generation import render_generation_page
 from ui.pages.transmission import render_transmission_page
 from ui.pages.distribution import render_distribution_page
 from ui.pages.sales import render_sales_page
 from ui.pages.roi import render_roi_page
 from ui.pages.export import render_export_page
-from ui.pages.map import render_map_page
-from ui.pages.history import render_history_page
 from ui.pages.forecast import render_forecast_page
 from ui.pages.scenario import render_scenario_page
+from ui.pages.map import render_map_page
+from ui.pages.history import render_history_page
+from ui.pages.compare import render_compare_page
 from ui.pages.reports import render_reports_page
 
 
@@ -31,6 +33,7 @@ def main():
         "Navigation",
         [
             "Home",
+            "Executive Summary",
             "Dashboard",
             "Generation",
             "Transmission",
@@ -42,12 +45,15 @@ def main():
             "Scenario",
             "Map",
             "History",
+            "Compare",
             "Reports",
         ],
     )
 
     if page == "Home":
         render_home_page()
+    elif page == "Executive Summary":
+        render_executive_summary_page()
     elif page == "Dashboard":
         render_dashboard_page()
     elif page == "Generation":
@@ -70,6 +76,8 @@ def main():
         render_map_page()
     elif page == "History":
         render_history_page()
+    elif page == "Compare":
+        render_compare_page()
     elif page == "Reports":
         render_reports_page()
 

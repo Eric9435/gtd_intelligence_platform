@@ -1,14 +1,19 @@
 import streamlit as st
 from ui.components.header import render_header
 from ui.maps.myanmar_map import build_myanmar_asset_map
+from ui.maps.risk_map import build_myanmar_risk_map
 
 
 def render_map_page():
     render_header(
         "Myanmar Map",
-        "Starter geospatial view for GT&D assets and key zones.",
+        "Geospatial starter view for GT&D assets and risk zones.",
     )
 
-    st.plotly_chart(build_myanmar_asset_map(), use_container_width=True)
+    tab1, tab2 = st.tabs(["Asset Map", "Risk Map"])
 
-    st.info("This is the Phase 3 starter map. Later phases can add generation sites, substations, lines, and risk layers.")
+    with tab1:
+        st.plotly_chart(build_myanmar_asset_map(), use_container_width=True)
+
+    with tab2:
+        st.plotly_chart(build_myanmar_risk_map(), use_container_width=True)
