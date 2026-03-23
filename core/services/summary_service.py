@@ -8,9 +8,7 @@ def generate_executive_insight(snapshot: dict) -> list[str]:
     roi = snapshot.get("roi", {})
     export = snapshot.get("export", {})
 
-    # ---------------------------
     # Generation
-    # ---------------------------
     actual_generation = float(generation.get("actual_generation_mw", 0))
     utilization = float(generation.get("utilization_pct", 0))
     reserve_margin = float(generation.get("reserve_margin_mw", 0))
@@ -38,9 +36,7 @@ def generate_executive_insight(snapshot: dict) -> list[str]:
     if generation_risk in ["HIGH", "CRITICAL"]:
         insights.append(f"Generation risk level is {generation_risk.lower()}, requiring operational attention.")
 
-    # ---------------------------
     # Transmission
-    # ---------------------------
     loading = float(transmission.get("loading_pct", 0))
     imbalance = float(transmission.get("imbalance_pct", 0))
     voltage_dev = float(transmission.get("voltage_dev_pct", 0))
@@ -65,9 +61,7 @@ def generate_executive_insight(snapshot: dict) -> list[str]:
     if tx_risk_score > 50 or tx_risk in ["HIGH", "CRITICAL"]:
         insights.append("Transmission risk level is elevated and requires closer monitoring or corrective action.")
 
-    # ---------------------------
     # Distribution
-    # ---------------------------
     total_loss = float(distribution.get("total_loss_pct", 0))
     dt_loading = float(distribution.get("dt_loading_pct", 0))
     consumer_voltage = float(distribution.get("consumer_voltage_v", 0))
@@ -91,9 +85,7 @@ def generate_executive_insight(snapshot: dict) -> list[str]:
     if dist_risk in ["HIGH", "CRITICAL"]:
         insights.append(f"Distribution risk is {dist_risk.lower()}, indicating weak downstream network performance.")
 
-    # ---------------------------
-    # Sales / Revenue
-    # ---------------------------
+    # Sales
     revenue = float(sales.get("revenue_mmk", 0))
     units_sold = float(sales.get("units_sold_mwh", 0))
     sales_risk = str(sales.get("risk_level", "NORMAL"))
@@ -107,9 +99,7 @@ def generate_executive_insight(snapshot: dict) -> list[str]:
     if sales_risk in ["HIGH", "CRITICAL"]:
         insights.append("Sales data quality or commercial structure requires review.")
 
-    # ---------------------------
     # ROI
-    # ---------------------------
     roi_pct = float(roi.get("roi_pct", 0))
     annual_profit = float(roi.get("annual_profit_mmk", 0))
     payback_years = float(roi.get("payback_years", 0))
@@ -133,9 +123,7 @@ def generate_executive_insight(snapshot: dict) -> list[str]:
     if roi_risk in ["HIGH", "CRITICAL"]:
         insights.append("Financial performance risk is elevated and requires strategic review.")
 
-    # ---------------------------
-    # Export / Surplus
-    # ---------------------------
+    # Export
     surplus = float(export.get("surplus_mw", 0))
     export_revenue = float(export.get("export_revenue_mmk", 0))
     export_energy = float(export.get("export_energy_mwh", 0))
@@ -155,10 +143,26 @@ def generate_executive_insight(snapshot: dict) -> list[str]:
     if export_risk in ["HIGH", "CRITICAL"]:
         insights.append("Export feasibility is constrained by current system balance or reserve limitations.")
 
-    # ---------------------------
-    # Fallback
-    # ---------------------------
     if not insights:
         insights.append("System is operating within normal parameters with no significant issues.")
 
     return insights
+
+
+def generate_auto_summary_paragraph(snapshot: dict) -> str:
+    generation = snapshot.get("generation", {})
+    transmission = snapshot.get("transmission", {})
+    distribution = snapshot.get("distribution", {})
+    sales = snapshot.get("sales", {})
+    roi = snapshot.get("roi", {})
+    export = snapshot.get("export", {})
+
+    return (
+        f"The latest GT&D snapshot indicates generation at {generation.get('actual_generation_mw', 0)} MW, "
+        f"transmission risk score at {transmission.get('risk_score', 0)}, "
+        f"distribution loss at {distribution.get('total_loss_pct', 0)} %, "
+        f"revenue at {sales.get('revenue_mmk', 0):,.0f} MMK, "
+        f"ROI at {roi.get('roi_pct', 0)} %, "
+        f"and surplus/export capacity at {export.get('surplus_mw', 0)} MW."
+    )
+
